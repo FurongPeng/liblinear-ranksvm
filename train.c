@@ -293,6 +293,10 @@ void parse_command_line(int argc, char **argv, char *input_file_name, char *mode
 					if(ptr++ == NULL)
 						break;
 				}
+//				printf("%d  %d:%f, %d:%f, %d:%f", param.nr_l,
+//				param.l_idx[0],param.l_val[0],
+//				param.l_idx[1],param.l_val[1],
+//				param.l_idx[2],param.l_val[2]);
 				break;
 
 			case 'v':

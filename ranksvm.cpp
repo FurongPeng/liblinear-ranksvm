@@ -1,6 +1,7 @@
 #include "ranksvm.h"
 #include <stdlib.h>
 #include <math.h>
+#include <errno.h>
 #include <stdio.h>
 #include <map>
 #define Malloc(type,n) (type *)malloc((n)*sizeof(type))
@@ -306,6 +307,7 @@ double l2r_l2_ranksvm_fun::fun(double *w)
 			f += w[i] * w[i] * param->l_val[lw];
 		else
 			f += w[i] * w[i];
+//		fprintf(stderr,"%d, %d\n", i, int(param->l_val[lw]));
 	}
 
 	f /= 2.0;
@@ -356,7 +358,7 @@ int l2r_l2_ranksvm_fun::get_nr_variable(void)
 
 void l2r_l2_ranksvm_fun::Hv(double *s, double *Hs)
 {
-	int q,i,j;
+	int q,i,j,lw;
 	int w_size = get_nr_variable();
 	int l = prob->l;
 	double *wa = new double[l];
@@ -398,8 +400,22 @@ void l2r_l2_ranksvm_fun::Hv(double *s, double *Hs)
 	delete[] gamma_plus_minus;
 	XTv(wa, Hs);
 	delete[] wa;
+
+//    for(i=0;i<w_size;i++)
+//		Hs[i] = s[i] + 2 * C * Hs[i];
+	lw = 0;
 	for(i=0;i<w_size;i++)
-		Hs[i] = s[i] + 2 * C * Hs[i];
+	{
+		if(lw < param->nr_l && i >= param->l_idx[lw] )
+			++lw;
+
+		if(lw < param->nr_l)
+			Hs[i] = s[i]* param->l_val[lw] + 2 * C * Hs[i];
+		else
+			Hs[i] = s[i] + 2 * C * Hs[i];
+	}
+
+
 }
 
 void l2r_l2_ranksvm_fun::Xv(double *v, double *Xv)
